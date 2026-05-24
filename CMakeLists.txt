@@ -3,6 +3,8 @@ project(DostavkaVkosmose C)
 
 set(CMAKE_C_STANDARD 11)
 
+find_package(raylib REQUIRED)
+
 add_executable(game 
     igruha/main.c 
     igruha/game.c
@@ -10,16 +12,16 @@ add_executable(game
 
 target_include_directories(game PRIVATE 
     "${CMAKE_CURRENT_SOURCE_DIR}/igruha"
-    "C:/raylib/include"
 )
 
-target_link_directories(game PRIVATE 
-    "C:/raylib/lib"
-)
+target_link_libraries(game raylib)
 
-target_link_libraries(game 
-    raylib 
-    opengl32 
-    gdi32 
-    winmm
-)
+if(EMSCRIPTEN)
+    set_target_properties(game PROPERTIES SUFFIX ".js")
+    target_link_options(game PRIVATE 
+        "SHELL:-s WASM=1"
+        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
+        "SHELL:-s INITIAL_MEMORY=67108864"
+        "SHELL:--shell-file=${CMAKE_CURRENT_SOURCE_DIR}/shell.html"
+    )
+endif()
