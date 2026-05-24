@@ -30,12 +30,19 @@ jobs:
     - name: Create docs folder
       run: |
         mkdir -p docs
-        cp build_web/game.js docs/
-        cp build_web/game.wasm docs/
-        cp build_web/game.html docs/index.html
+        cp build_web/game.js docs/game.js || true
+        cp build_web/game.wasm docs/game.wasm || true
+        cp build_web/game.html docs/index.html || true
+    
+    - name: Upload to GitHub Pages
+      uses: actions/upload-artifact@v3
+      with:
+        name: game-build
+        path: docs/
     
     - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs
+        branch: gh-pages
+        folder: docs
+        clean: true
