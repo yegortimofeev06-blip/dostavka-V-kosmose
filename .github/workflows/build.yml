@@ -7,18 +7,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Install Emscripten
       uses: mymindstorm/setup-emsdk@v12
       with:
         version: latest
-    
-    - name: Verify Emscripten
-      run: |
-        emcc --version
     
     - name: Build with Emscripten
       run: |
@@ -27,22 +27,22 @@ jobs:
         emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
         emmake make -j4
     
-    - name: Create docs folder
+    - name: Prepare GitHub Pages
       run: |
         mkdir -p docs
-        cp build_web/game.js docs/game.js || true
-        cp build_web/game.wasm docs/game.wasm || true
-        cp build_web/game.html docs/index.html || true
+        cp build_web/game.js docs/ || echo "game.js not found"
+        cp build_web/game.wasm docs/ || echo "game.wasm not found"
+        cp build_web/game.html docs/index.html || echo "game.html not found"
+        ls -la docs/
     
-    - name: Upload to GitHub Pages
-      uses: actions/upload-artifact@v3
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+    
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
       with:
-        name: game-build
-        path: docs/
+        path: 'docs'
     
     - name: Deploy to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@v4
-      with:
-        branch: gh-pages
-        folder: docs
-        clean: true
+      id: deployment
+      uses: actions/deploy-pages@v2
