@@ -11,38 +11,46 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Install Emscripten
-      uses: mymindstorm/setup-emsdk@v12
+      uses: mymindstorm/setup-emsdk@v14
       with:
-        version: latest
-    
-    - name: Build with Emscripten
+        version: 3.1.64
+
+    - name: Build raylib for web
       run: |
-        mkdir -p build_web
-        cd build_web
+        git clone --depth 1 --branch 5.0 https://github.com/raysan5/raylib.git
+        cd raylib
+        mkdir build_wasm && cd build_wasm
+        emcmake cmake .. -DPLATFORM=Web -DCMAKE_BUILD_TYPE=Release
+        emmake make -j4
+        sudo make install
+
+    - name: Build game
+      run: |
+        mkdir -p build_web && cd build_web
         emcmake cmake .. -DCMAKE_BUILD_TYPE=Release
         emmake make -j4
-    
+
     - name: Prepare GitHub Pages
       run: |
         mkdir -p docs
-        cp build_web/game.js docs/ || echo "game.js not found"
-        cp build_web/game.wasm docs/ || echo "game.wasm not found"
-        cp build_web/game.html docs/index.html || echo "game.html not found"
+        cp build_web/game.html docs/index.html
+        cp build_web/game.js docs/game.js
+        cp build_web/game.wasm docs/game.wasm
         ls -la docs/
-    
+
     - name: Setup Pages
       uses: actions/configure-pages@v3
-    
+
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v2
       with:
         path: 'docs'
-    
+
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v2

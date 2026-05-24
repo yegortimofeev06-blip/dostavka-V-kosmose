@@ -17,7 +17,7 @@ target_include_directories(game PRIVATE
 target_link_libraries(game raylib)
 
 if(EMSCRIPTEN)
-    set_target_properties(game PROPERTIES SUFFIX ".js")
+    set_target_properties(game PROPERTIES SUFFIX ".html")
     target_link_options(game PRIVATE 
         "SHELL:-s WASM=1"
         "SHELL:-s ALLOW_MEMORY_GROWTH=1"
