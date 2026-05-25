@@ -1,3 +1,0 @@
-C:/c++/game3/build/CMakeFiles/DostavkaVkosmose.dir
-C:/c++/game3/build/CMakeFiles/edit_cache.dir
-C:/c++/game3/build/CMakeFiles/rebuild_cache.dir
