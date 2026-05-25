@@ -1,0 +1,48 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: sudo apt-get install -y libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v12
+        with:
+          version: 3.1.50
+
+      - name: Build raylib for web
+        run: |
+          git clone --depth 1 --branch 5.0 https://github.com/raysan5/raylib.git
+          cd raylib/src
+          make PLATFORM=PLATFORM_WEB -B
+
+      - name: Build game
+        run: |
+          emcc igruha/main.c igruha/game.c \
+            -o index.html \
+            -I raylib/src \
+            raylib/src/libraylib.a \
+            -s USE_GLFW=3 \
+            -s ASYNCIFY \
+            -s TOTAL_MEMORY=67108864 \
+            -s FORCE_FILESYSTEM=1 \
+            --shell-file shell.html \
+            -lm
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          include_files: |
+            index.html
+            index.js
+            index.wasm
