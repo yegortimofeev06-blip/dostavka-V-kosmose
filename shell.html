@@ -6,11 +6,16 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #080814; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    canvas { display: block; }
+    canvas.emscripten { display: block; }
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+  <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+  <script type='text/javascript'>
+    var Module = {
+      canvas: (function() { return document.getElementById('canvas'); })()
+    };
+  </script>
   {{{ SCRIPT }}}
 </body>
 </html>
